@@ -36,7 +36,7 @@ export default function ContactSection({ user }: { user?: any }) {
   };
 
   return (
-    <section className="mb-section-gap">
+    <section id="contact" className="pt-section-gap">
       <div className="text-center mb-stack-lg">
         <p className="text-primary font-label-caps architectural-tracking mb-2">
           Contact
