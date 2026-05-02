@@ -401,7 +401,7 @@ export default async function Page() {
         {/* Contact Section */}
         <ContactSection user={user.data} />
       </main>
-      <Footer />
+      <Footer user={user?.data} />
     </>
   );
 }
