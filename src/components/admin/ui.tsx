@@ -87,7 +87,7 @@ export function Field({
 }
 
 const controlClass =
-  "w-full rounded-xl border border-line bg-canvas px-3.5 py-2.5 text-sm text-ink placeholder:text-faint outline-none transition-colors focus:border-accent disabled:opacity-60";
+  "w-full rounded-xl border border-line bg-canvas px-3.5 py-2.5 text-base text-ink placeholder:text-faint outline-none transition-colors focus:border-accent disabled:opacity-60 lg:text-sm";
 
 export function TextInput({
   className,
@@ -148,6 +148,11 @@ export function ImagePicker({
   existingUrl,
   error,
   required,
+  hint,
+  contain = false,
+  maxBytes = MAX_IMAGE_BYTES,
+  warnBytes,
+  minWidth,
 }: {
   label: string;
   file: File | null;
@@ -155,9 +160,15 @@ export function ImagePicker({
   existingUrl?: string | null;
   error?: string;
   required?: boolean;
+  hint?: ReactNode;
+  contain?: boolean;
+  maxBytes?: number;
+  warnBytes?: number;
+  minWidth?: number;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [localError, setLocalError] = useState<string | null>(null);
+  const [warning, setWarning] = useState<string | null>(null);
   const [objectUrl, setObjectUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -176,6 +187,7 @@ export function ImagePicker({
 
   const handleFile = (selected: File | null) => {
     setLocalError(null);
+    setWarning(null);
     if (!selected) {
       onFileChange(null);
       return;
@@ -184,9 +196,32 @@ export function ImagePicker({
       setLocalError("Use a JPG, PNG, WEBP or GIF image.");
       return;
     }
-    if (selected.size > MAX_IMAGE_BYTES) {
-      setLocalError("Image must be 5MB or smaller.");
+    if (selected.size > maxBytes) {
+      setLocalError(
+        `Image must be ${Math.round(maxBytes / (1024 * 1024))}MB or smaller.`,
+      );
       return;
+    }
+    if (warnBytes && selected.size > warnBytes) {
+      setWarning(
+        `This file is larger than ${Math.round(
+          warnBytes / (1024 * 1024),
+        )}MB — consider compressing it.`,
+      );
+    }
+    if (minWidth) {
+      const url = URL.createObjectURL(selected);
+      const img = new window.Image();
+      img.onload = () => {
+        if (img.naturalWidth < minWidth) {
+          setWarning(
+            `Image is ${img.naturalWidth}px wide — recommended at least ${minWidth}px.`,
+          );
+        }
+        URL.revokeObjectURL(url);
+      };
+      img.onerror = () => URL.revokeObjectURL(url);
+      img.src = url;
     }
     onFileChange(selected);
   };
@@ -194,13 +229,19 @@ export function ImagePicker({
   return (
     <Field label={label} error={shownError ?? undefined}>
       <div className="flex items-center gap-4">
-        <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl border border-line bg-surface-2">
+        <div
+          className={`relative h-20 w-20 shrink-0 overflow-hidden rounded-xl border border-line ${
+            contain ? "checkerboard" : "bg-surface-2"
+          }`}
+        >
           {preview ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={preview}
               alt=""
-              className="h-full w-full object-cover"
+              className={`h-full w-full ${
+                contain ? "object-contain p-1" : "object-cover"
+              }`}
             />
           ) : (
             <div className="grid h-full w-full place-items-center text-faint">
@@ -232,10 +273,15 @@ export function ImagePicker({
             ) : null}
           </div>
           <span className="text-xs text-faint">
-            {required ? "Required · " : ""}JPG, PNG, WEBP, GIF · max 5MB
+            {required ? "Required · " : ""}JPG, PNG, WEBP, GIF · max{" "}
+            {Math.round(maxBytes / (1024 * 1024))}MB
           </span>
         </div>
       </div>
+      {warning ? (
+        <span className="text-xs text-accent-2">{warning}</span>
+      ) : null}
+      {hint ? <span className="text-xs text-faint">{hint}</span> : null}
       <input
         ref={inputRef}
         type="file"
@@ -310,7 +356,7 @@ export function Modal({
                 type="button"
                 onClick={onClose}
                 aria-label="Close"
-                className="grid h-9 w-9 place-items-center rounded-full border border-line text-ink transition-colors hover:bg-surface-2"
+                className="grid h-11 w-11 place-items-center rounded-full lg:h-9 lg:w-9 border border-line text-ink transition-colors hover:bg-surface-2"
               >
                 <X className="h-4 w-4" />
               </button>

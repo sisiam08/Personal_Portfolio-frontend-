@@ -1,9 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AnimatePresence, motion, useScroll, useMotionValueEvent } from "framer-motion";
+import {
+  AnimatePresence,
+  motion,
+  useScroll,
+  useMotionValueEvent,
+} from "framer-motion";
 import { ArrowUpRight, Download, Menu, X } from "lucide-react";
 import { ModeToggle } from "@/src/components/shared/ModeToggle";
+import Image from "next/image";
+import logo from "../../../public/Logo.png";
 
 const LINKS = [
   { label: "Home", href: "#top", id: "top" },
@@ -63,7 +70,7 @@ export default function Navbar({ resumeUrl }: { resumeUrl?: string | null }) {
         initial={{ y: -24, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="fixed inset-x-0 top-0 z-[80] flex justify-center px-4 pt-3"
+        className="fixed inset-x-0 top-0 z-[80] flex justify-center px-4 pt-[calc(0.75rem+env(safe-area-inset-top))]"
       >
         <div
           className={`flex w-full max-w-[1080px] items-center justify-between gap-4 rounded-full border px-3 py-2 transition-all duration-300 md:px-4 ${
@@ -77,9 +84,7 @@ export default function Navbar({ resumeUrl }: { resumeUrl?: string | null }) {
             className="group flex items-center gap-2 pl-1"
             aria-label="Shahariar Siam — home"
           >
-            <span className="grid h-8 w-8 place-items-center rounded-lg bg-accent font-display text-sm font-bold text-accent-ink">
-              S
-            </span>
+            <Image src={logo} alt="Admin" className="h-8 w-8" />
             <span className="hidden font-display text-sm font-semibold tracking-tight text-ink sm:block">
               Siam
               <span className="text-accent">.</span>
@@ -101,7 +106,11 @@ export default function Navbar({ resumeUrl }: { resumeUrl?: string | null }) {
                     <motion.span
                       layoutId="nav-active"
                       className="absolute inset-0 -z-10 rounded-full bg-surface-2"
-                      transition={{ type: "spring", stiffness: 360, damping: 32 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 360,
+                        damping: 32,
+                      }}
                     />
                   )}
                   {link.label}
@@ -128,7 +137,7 @@ export default function Navbar({ resumeUrl }: { resumeUrl?: string | null }) {
               onClick={() => setOpen((v) => !v)}
               aria-label={open ? "Close menu" : "Open menu"}
               aria-expanded={open}
-              className="grid h-10 w-10 place-items-center rounded-full border border-line text-ink lg:hidden"
+              className="grid h-11 w-11 place-items-center rounded-full border border-line text-ink lg:h-10 lg:w-10 lg:hidden"
             >
               {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>

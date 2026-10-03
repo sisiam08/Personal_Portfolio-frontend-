@@ -28,6 +28,7 @@ import {
   useAdminList,
 } from "./ui";
 import type { Skill } from "./types";
+import HeroChipsPanel from "./HeroChipsPanel";
 
 const emptyForm = {
   name: "",
@@ -146,6 +147,14 @@ export default function SkillsManager() {
         }
       />
 
+      {!loading && !error ? (
+        <HeroChipsPanel
+          skills={items ?? []}
+          onAddSkill={openCreate}
+          onSaved={reload}
+        />
+      ) : null}
+
       {loading ? (
         <SkeletonRows rows={5} />
       ) : error ? (
@@ -213,7 +222,7 @@ export default function SkillsManager() {
                     type="button"
                     onClick={() => openEdit(skill)}
                     aria-label={`Edit ${skill.name}`}
-                    className="grid h-9 w-9 place-items-center rounded-full text-muted transition-colors hover:bg-surface-2 hover:text-ink"
+                    className="grid h-11 w-11 place-items-center rounded-full lg:h-9 lg:w-9 text-muted transition-colors hover:bg-surface-2 hover:text-ink"
                   >
                     <Pencil className="h-4 w-4" />
                   </button>
@@ -221,7 +230,7 @@ export default function SkillsManager() {
                     type="button"
                     onClick={() => setDeleteTarget(skill)}
                     aria-label={`Delete ${skill.name}`}
-                    className="grid h-9 w-9 place-items-center rounded-full text-muted transition-colors hover:bg-destructive/10 hover:text-destructive"
+                    className="grid h-11 w-11 place-items-center rounded-full lg:h-9 lg:w-9 text-muted transition-colors hover:bg-destructive/10 hover:text-destructive"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>

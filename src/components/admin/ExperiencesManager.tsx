@@ -176,7 +176,7 @@ export default function ExperiencesManager() {
                   type="button"
                   onClick={() => openEdit(exp)}
                   aria-label={`Edit ${exp.role}`}
-                  className="grid h-9 w-9 place-items-center rounded-full text-muted transition-colors hover:bg-surface-2 hover:text-ink"
+                  className="grid h-11 w-11 place-items-center rounded-full lg:h-9 lg:w-9 text-muted transition-colors hover:bg-surface-2 hover:text-ink"
                 >
                   <Pencil className="h-4 w-4" />
                 </button>
@@ -184,7 +184,7 @@ export default function ExperiencesManager() {
                   type="button"
                   onClick={() => setDeleteTarget(exp)}
                   aria-label={`Delete ${exp.role}`}
-                  className="grid h-9 w-9 place-items-center rounded-full text-muted transition-colors hover:bg-destructive/10 hover:text-destructive"
+                  className="grid h-11 w-11 place-items-center rounded-full lg:h-9 lg:w-9 text-muted transition-colors hover:bg-destructive/10 hover:text-destructive"
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>

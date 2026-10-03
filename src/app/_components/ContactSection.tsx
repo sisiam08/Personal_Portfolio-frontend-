@@ -17,7 +17,7 @@ import type { ProfileUser } from "./types";
 type Status = "idle" | "submitting" | "success" | "error";
 
 const inputClass =
-  "w-full rounded-xl border border-line bg-canvas px-4 py-3 text-sm text-ink placeholder:text-faint outline-none transition-colors focus:border-accent";
+  "w-full rounded-xl border border-line bg-canvas px-4 py-3 text-base text-ink placeholder:text-faint outline-none transition-colors focus:border-accent lg:text-sm";
 
 export default function ContactSection({
   user,
@@ -140,11 +140,11 @@ export default function ContactSection({
             />
           </div>
 
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
             <button
               type="submit"
               disabled={status === "submitting"}
-              className="inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-accent-ink transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-accent-ink transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 sm:w-auto"
             >
               {status === "submitting" ? (
                 <>

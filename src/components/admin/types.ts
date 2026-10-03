@@ -14,6 +14,7 @@ export interface Skill {
   level: string;
   projectExperience: number;
   lastUsedYear: number;
+  heroOrder?: number | null;
 }
 
 export interface Project {

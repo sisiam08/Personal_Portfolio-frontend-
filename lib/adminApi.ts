@@ -6,7 +6,7 @@ export interface AdminResult<T> {
 }
 
 interface AdminRequestOptions {
-  method?: "GET" | "POST" | "PATCH" | "DELETE";
+  method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   body?: unknown;
   formData?: FormData;
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
@@ -18,6 +19,7 @@ import {
 } from "lucide-react";
 import { ModeToggle } from "@/src/components/shared/ModeToggle";
 import { cn } from "@/lib/utils";
+import logo from "../../../public/Logo.png";
 
 const NAV = [
   { href: "/admin", label: "Dashboard", Icon: LayoutDashboard },
@@ -50,7 +52,7 @@ export default function AdminShell({
         headers: { "Content-Type": "application/json" },
       });
     } catch {
-      // ignore — redirect regardless
+      // ignore â€” redirect regardless
     }
     router.push("/admin/login");
     router.refresh();
@@ -62,9 +64,12 @@ export default function AdminShell({
   const sidebar = (
     <div className="flex h-full flex-col gap-2 p-4">
       <Link href="/admin" className="mb-4 flex items-center gap-2 px-2">
-        <span className="grid h-8 w-8 place-items-center rounded-lg bg-accent font-display text-sm font-bold text-accent-ink">
-          S
-        </span>
+        <Image
+          src={logo}
+          alt="Admin"
+          className="h-8 w-8"
+        />
+
         <span className="font-display text-sm font-semibold text-ink">
           Admin
         </span>
@@ -107,14 +112,14 @@ export default function AdminShell({
           className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-muted transition-colors hover:bg-surface-2/60 hover:text-ink disabled:opacity-60"
         >
           <LogOut className="h-4 w-4" />
-          {loggingOut ? "Signing out…" : "Logout"}
+          {loggingOut ? "Signing outâ€¦" : "Logout"}
         </button>
       </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-canvas">
+    <div className="min-h-svh bg-canvas">
       {/* Desktop sidebar */}
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 border-r border-line bg-surface/50 lg:block">
         {sidebar}

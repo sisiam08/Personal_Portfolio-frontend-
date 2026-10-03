@@ -2,6 +2,8 @@ import Link from "next/link";
 import { ArrowUpRight, LogIn } from "lucide-react";
 import { GithubIcon, LinkedinIcon, WhatsappIcon, XIcon } from "./BrandIcons";
 import type { ProfileUser } from "./types";
+import logo from "../../../public/Logo.png";
+import Image from "next/image";
 
 const LINKS = [
   { label: "Projects", href: "#projects" },
@@ -16,7 +18,12 @@ export default function Footer({ user }: { user?: ProfileUser | null }) {
   const year = new Date().getFullYear();
   const socials = [
     { key: "github", href: user?.github, Icon: GithubIcon, label: "GitHub" },
-    { key: "linkedin", href: user?.linkedin, Icon: LinkedinIcon, label: "LinkedIn" },
+    {
+      key: "linkedin",
+      href: user?.linkedin,
+      Icon: LinkedinIcon,
+      label: "LinkedIn",
+    },
     { key: "x", href: user?.x, Icon: XIcon, label: "X" },
     {
       key: "whatsapp",
@@ -31,16 +38,14 @@ export default function Footer({ user }: { user?: ProfileUser | null }) {
       <div className="mx-auto grid w-full max-w-[var(--container-page)] grid-cols-1 gap-10 md:grid-cols-[1.4fr_1fr_1fr]">
         <div className="flex flex-col gap-4">
           <a href="#top" className="flex items-center gap-2">
-            <span className="grid h-8 w-8 place-items-center rounded-lg bg-accent font-display text-sm font-bold text-accent-ink">
-              S
-            </span>
+            <Image src={logo} alt="Admin" className="h-8 w-8" />
             <span className="font-display text-base font-semibold text-ink">
               Siam<span className="text-accent">.</span>
             </span>
           </a>
           <p className="max-w-xs text-sm leading-relaxed text-muted">
-            I build products that solve real problems and scale with them —
-            from first commit to production.
+            I build products that solve real problems and scale with them — from
+            first commit to production.
           </p>
           {socials.length > 0 ? (
             <div className="mt-1 flex items-center gap-3">
@@ -98,21 +103,16 @@ export default function Footer({ user }: { user?: ProfileUser | null }) {
 
       <div className="mx-auto mt-12 flex w-full max-w-[var(--container-page)] flex-col items-center justify-between gap-4 border-t border-line pt-6 md:flex-row">
         <p className="text-xs text-faint">
-          © {year} {user?.name || "Md. Shahariar Islam Siam"}. All rights reserved.
+          © {year} {user?.name || "Md. Shahariar Islam Siam"}. All rights
+          reserved.
         </p>
-        <div className="flex items-center gap-5">
-          <p className="text-xs text-faint">
-            Designed &amp; built with Next.js, Tailwind &amp; Framer Motion.
-          </p>
-          <Link
-            href="/admin/login"
-            aria-label="Admin login"
-            className="inline-flex items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-xs font-medium text-muted transition-colors hover:border-line-2 hover:text-ink"
-          >
-            <LogIn className="h-3.5 w-3.5" />
-            Login
-          </Link>
-        </div>
+        <Link
+          href="/admin/login"
+          aria-label="Admin login"
+          className="inline-flex items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-xs font-medium text-muted transition-colors hover:cursor-none"
+        >
+          Me
+        </Link>
       </div>
     </footer>
   );

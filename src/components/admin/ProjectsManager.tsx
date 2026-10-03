@@ -96,7 +96,7 @@ function ProjectRow({
           aria-label={`Drag to reorder ${project.title}`}
           onPointerDown={(e) => controls.start(e)}
           style={{ touchAction: "none" }}
-          className="grid h-9 w-7 shrink-0 cursor-grab place-items-center rounded-lg text-faint transition-colors hover:bg-surface-2 hover:text-ink active:cursor-grabbing"
+          className="grid h-11 w-9 shrink-0 cursor-grab lg:h-9 lg:w-7 place-items-center rounded-lg text-faint transition-colors hover:bg-surface-2 hover:text-ink active:cursor-grabbing"
         >
           <GripVertical className="h-4 w-4" />
         </button>
@@ -140,7 +140,7 @@ function ProjectRow({
               onClick={onMoveUp}
               disabled={index === 0}
               aria-label={`Move ${project.title} up`}
-              className="grid h-9 w-9 place-items-center rounded-full text-muted transition-colors hover:bg-surface-2 hover:text-ink disabled:cursor-not-allowed disabled:opacity-30"
+              className="grid h-11 w-11 place-items-center rounded-full lg:h-9 lg:w-9 text-muted transition-colors hover:bg-surface-2 hover:text-ink disabled:cursor-not-allowed disabled:opacity-30"
             >
               <ArrowUp className="h-4 w-4" />
             </button>
@@ -149,7 +149,7 @@ function ProjectRow({
               onClick={onMoveDown}
               disabled={index === total - 1}
               aria-label={`Move ${project.title} down`}
-              className="grid h-9 w-9 place-items-center rounded-full text-muted transition-colors hover:bg-surface-2 hover:text-ink disabled:cursor-not-allowed disabled:opacity-30"
+              className="grid h-11 w-11 place-items-center rounded-full lg:h-9 lg:w-9 text-muted transition-colors hover:bg-surface-2 hover:text-ink disabled:cursor-not-allowed disabled:opacity-30"
             >
               <ArrowDown className="h-4 w-4" />
             </button>
@@ -159,7 +159,7 @@ function ProjectRow({
           type="button"
           onClick={onEdit}
           aria-label={`Edit ${project.title}`}
-          className="grid h-9 w-9 place-items-center rounded-full text-muted transition-colors hover:bg-surface-2 hover:text-ink"
+          className="grid h-11 w-11 place-items-center rounded-full lg:h-9 lg:w-9 text-muted transition-colors hover:bg-surface-2 hover:text-ink"
         >
           <Pencil className="h-4 w-4" />
         </button>
@@ -167,7 +167,7 @@ function ProjectRow({
           type="button"
           onClick={onDelete}
           aria-label={`Delete ${project.title}`}
-          className="grid h-9 w-9 place-items-center rounded-full text-muted transition-colors hover:bg-destructive/10 hover:text-destructive"
+          className="grid h-11 w-11 place-items-center rounded-full lg:h-9 lg:w-9 text-muted transition-colors hover:bg-destructive/10 hover:text-destructive"
         >
           <Trash2 className="h-4 w-4" />
         </button>
@@ -469,6 +469,11 @@ export default function ProjectsManager() {
             existingUrl={editing?.image ?? null}
             required={!editing}
             error={fieldErrors.image}
+            contain
+            maxBytes={50 * 1024 * 1024}
+            warnBytes={5 * 1024 * 1024}
+            minWidth={1200}
+            hint="Upload a mockup image. Recommended: 1600 x 1000 px (16:10), PNG or WebP, transparent background, mockup fully inside the canvas with about 5% empty margin. Keep it under 1 MB."
           />
 
           <Field label="Title" htmlFor="p-title" error={fieldErrors.title}>

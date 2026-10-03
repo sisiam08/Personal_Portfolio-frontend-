@@ -116,7 +116,7 @@ export default function HeroSection({
         name={name}
         designation={user?.designation}
         image={user?.image}
-        // skills={skills}
+        skills={skills}
       />
     </section>
   );

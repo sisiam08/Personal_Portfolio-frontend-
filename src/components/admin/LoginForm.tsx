@@ -48,7 +48,7 @@ export default function LoginForm({ initialError }: { initialError?: string }) {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-canvas px-4 py-12">
+    <div className="flex min-h-svh items-center justify-center bg-canvas px-4 py-12">
       <div className="w-full max-w-sm">
         <Link
           href="/"
@@ -94,7 +94,7 @@ export default function LoginForm({ initialError }: { initialError?: string }) {
                 autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-xl border border-line bg-canvas px-3.5 py-2.5 text-sm text-ink placeholder:text-faint outline-none transition-colors focus:border-accent"
+                className="w-full rounded-xl border border-line bg-canvas px-3.5 py-2.5 text-base text-ink lg:text-sm placeholder:text-faint outline-none transition-colors focus:border-accent"
                 placeholder="you@example.com"
                 required
               />
@@ -109,8 +109,8 @@ export default function LoginForm({ initialError }: { initialError?: string }) {
                 autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-xl border border-line bg-canvas px-3.5 py-2.5 text-sm text-ink placeholder:text-faint outline-none transition-colors focus:border-accent"
-                placeholder="••••••••"
+                className="w-full rounded-xl border border-line bg-canvas px-3.5 py-2.5 text-base text-ink lg:text-sm placeholder:text-faint outline-none transition-colors focus:border-accent"
+                placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
                 required
               />
             </div>
@@ -123,7 +123,7 @@ export default function LoginForm({ initialError }: { initialError?: string }) {
               {loading ? (
                 <>
                   <LoaderCircle className="h-4 w-4 animate-spin" />
-                  Signing in…
+                  Signing inâ€¦
                 </>
               ) : (
                 "Sign in"

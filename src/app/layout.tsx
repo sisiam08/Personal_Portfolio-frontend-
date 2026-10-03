@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Toaster } from "react-hot-toast";
 import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
 import "./globals.css";
@@ -57,6 +57,16 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f4f1ea" },
+    { media: "(prefers-color-scheme: dark)", color: "#09090a" },
+  ],
+};
+
 export default function RootLayout({
   children,
 }: {
@@ -68,7 +78,7 @@ export default function RootLayout({
       className={`${inter.variable} ${space.variable} ${jetbrains.variable}`}
       suppressHydrationWarning
     >
-      <body className="page-texture min-h-screen bg-canvas font-sans text-ink antialiased">
+      <body className="page-texture min-h-svh bg-canvas font-sans text-ink antialiased">
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
@@ -77,6 +87,11 @@ export default function RootLayout({
         >
           <Toaster
             position="bottom-right"
+            containerStyle={{
+              bottom: "calc(1rem + env(safe-area-inset-bottom))",
+              right: "calc(1rem + env(safe-area-inset-right))",
+              left: "auto",
+            }}
             toastOptions={{
               style: {
                 background: "var(--surface)",

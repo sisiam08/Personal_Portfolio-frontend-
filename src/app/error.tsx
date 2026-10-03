@@ -15,7 +15,7 @@ export default function Error({
   }, [error]);
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-xl flex-col items-center justify-center gap-5 px-6 text-center">
+    <main className="mx-auto flex min-h-svh w-full max-w-xl flex-col items-center justify-center gap-5 px-6 text-center">
       <span className="grid h-14 w-14 place-items-center rounded-full border border-line bg-surface-2 text-accent-2">
         <CircleAlert className="h-6 w-6" />
       </span>

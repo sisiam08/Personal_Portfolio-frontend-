@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import {
-  AnimatePresence,
   motion,
   useMotionValueEvent,
   useReducedMotion,
@@ -28,7 +27,7 @@ const STATUS_STYLE: Record<string, { bg: string; color: string }> = {
 };
 
 const SHELL =
-  "mx-auto grid h-full w-full max-w-[var(--container-page)] grid-cols-1 grid-rows-[minmax(0,44%)_minmax(0,1fr)] gap-6 px-[var(--spacing-page)] pb-10 pt-24 lg:grid-cols-[1.02fr_0.98fr] lg:grid-rows-1 lg:gap-12 lg:pb-0 lg:pt-0";
+  "mx-auto grid h-full w-full max-w-[var(--container-page)] grid-cols-1 grid-rows-[minmax(0,38%)_minmax(0,1fr)] gap-6 px-[var(--spacing-page)] pb-10 pt-24 lg:grid-cols-[1.02fr_0.98fr] lg:grid-rows-1 lg:gap-12 lg:pb-0 lg:pt-0";
 
 function StatusBadge({ status, featured }: { status?: string; featured?: boolean }) {
   if (!status && !featured) return null;
@@ -80,46 +79,59 @@ function TechChips({ skills }: { skills: Project["skills"] }) {
   );
 }
 
-function DeviceMockup({
+function ProjectVisual({
   project,
   imageY,
+  priority,
 }: {
   project: Project;
   imageY?: MotionValue<string>;
+  priority?: boolean;
 }) {
+  const [failed, setFailed] = useState(false);
+  const showImage = Boolean(project.image) && !failed;
+
   return (
     <motion.div
       whileHover={{ rotate: -1, y: -6 }}
       transition={{ type: "spring", stiffness: 220, damping: 20 }}
-      className="relative w-full rounded-2xl border border-line-2 bg-surface-2 p-2 shadow-[var(--shadow)]"
+      className="flex h-full w-full items-center justify-center"
     >
-      <div className="flex items-center gap-1.5 px-2 pb-2 pt-1">
-        <span className="h-2.5 w-2.5 rounded-full bg-accent-2/70" />
-        <span className="h-2.5 w-2.5 rounded-full bg-accent/70" />
-        <span className="h-2.5 w-2.5 rounded-full bg-accent-3/70" />
-        <span className="ml-3 flex-1 truncate rounded-md bg-surface px-3 py-1 text-[0.65rem] text-faint">
-          {project.slug || project.title}
-        </span>
-      </div>
-      <div className="relative aspect-[16/10] overflow-hidden rounded-xl border border-line bg-canvas">
-        <motion.div style={{ y: imageY }} className="absolute inset-[-6%]">
-          {project.image ? (
+      {/* Stage: centers every image so incoming/outgoing line up. Height is
+          capped to the slide cell and to the viewport so it never scrolls. */}
+      <div className="relative flex h-full max-h-[min(70vh,640px)] w-full items-center justify-center">
+        {/* very subtle ambient glow behind the mockup (not a box) */}
+        <div className="pointer-events-none absolute inset-[16%] rounded-full bg-accent-soft opacity-40 blur-3xl" />
+
+        <motion.div
+          style={{ y: imageY }}
+          className="relative flex h-full max-h-full w-full items-center justify-center"
+        >
+          {showImage ? (
             <Image
               src={project.image}
               alt={project.title}
-              fill
-              sizes="(max-width: 1024px) 90vw, 560px"
-              className="object-cover object-top"
+              width={1600}
+              height={1000}
+              priority={priority}
+              loading="eager"
+              quality={85}
+              sizes="(max-width: 1024px) 92vw, 720px"
+              onError={() => setFailed(true)}
+              className="h-auto max-h-full w-auto max-w-full rounded-3xl"
+              style={{
+                filter: "drop-shadow(0 30px 50px rgba(0, 0, 0, 0.35))",
+              }}
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-surface-2 to-surface">
+            <div className="flex aspect-[16/10] w-full max-w-md flex-col items-center justify-center gap-2 rounded-3xl border border-dashed border-line-2 bg-surface-2/60">
               <span className="font-display text-4xl font-bold text-faint">
                 {project.title.slice(0, 2).toUpperCase()}
               </span>
+              <span className="mono-label text-faint">Preview coming soon</span>
             </div>
           )}
         </motion.div>
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-canvas/40 to-transparent" />
       </div>
     </motion.div>
   );
@@ -170,7 +182,7 @@ function ProjectDetails({
   );
 
   return (
-    <div className="flex h-full max-h-full flex-col gap-5 overflow-y-auto py-1 no-scrollbar lg:justify-center">
+    <div className="flex h-full max-h-full flex-col gap-4 overflow-y-auto py-1 no-scrollbar lg:gap-5 lg:justify-center">
       <div className="flex items-center gap-4">
         <span className="font-display text-sm text-faint">
           {String(index + 1).padStart(2, "0")}
@@ -225,6 +237,73 @@ function ProjectDetails({
   );
 }
 
+function detailsOpacity(index: number, pos: number, total: number) {
+  const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
+  const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+  const isFirst = index === 0;
+  const isLast = index === total - 1;
+
+  // Enter during 40â€“60% of this project's rise; exit during 35â€“40% of the
+  // next project's rise (so old is fully gone before the new starts).
+  const enterStart = isFirst ? Number.NEGATIVE_INFINITY : index - 0.66;
+  const enterEnd = isFirst ? Number.NEGATIVE_INFINITY : index - 0.49;
+  const exitStart = isLast ? Number.POSITIVE_INFINITY : index + 0.3;
+  const exitEnd = isLast ? Number.POSITIVE_INFINITY : index + 0.34;
+
+  let o = 1;
+  if (pos <= enterStart) o = 0;
+  else if (pos < enterEnd)
+    o = lerp(0, 1, (pos - enterStart) / (enterEnd - enterStart));
+
+  if (pos > exitStart) {
+    o = Math.min(o, 1 - clamp((pos - exitStart) / (exitEnd - exitStart), 0, 1));
+  }
+  return clamp(o, 0, 1);
+}
+
+function DetailsLayer({
+  project,
+  index,
+  total,
+  progress,
+  onOpenCase,
+}: {
+  project: Project;
+  index: number;
+  total: number;
+  progress: MotionValue<number>;
+  onOpenCase: () => void;
+}) {
+  const opacity = useTransform(progress, (v) =>
+    detailsOpacity(index, v * total, total),
+  );
+  const [readable, setReadable] = useState(() => opacity.get() > 0.01);
+
+  useMotionValueEvent(opacity, "change", (o) => {
+    const next = o > 0.01;
+    setReadable((prev) => (prev === next ? prev : next));
+  });
+
+  return (
+    <motion.div
+      aria-hidden={!readable}
+      style={{
+        opacity,
+        visibility: readable ? "visible" : "hidden",
+        pointerEvents: readable ? "auto" : "none",
+      }}
+      className="absolute inset-0"
+    >
+      <ProjectDetails
+        project={project}
+        index={index}
+        total={total}
+        onOpenCase={onOpenCase}
+      />
+    </motion.div>
+  );
+}
+
 function VisualSlide({
   project,
   index,
@@ -249,8 +328,12 @@ function VisualSlide({
   });
   const opacity = useTransform(progress, (v) => {
     if (index === total - 1) return 1;
-    return 1 - clamp(v * total - index, 0, 1) * 0.85;
+    // Fully hidden by the time the next image has settled.
+    return 1 - clamp((v * total - index) / 0.85, 0, 1);
   });
+  const visibility = useTransform(opacity, (o) =>
+    o > 0.01 ? "visible" : "hidden",
+  );
   const scale = useTransform(progress, (v) =>
     1 - clamp(v * total - index, 0, 1) * 0.05,
   );
@@ -263,12 +346,16 @@ function VisualSlide({
   return (
     <motion.div
       aria-hidden={!active}
-      style={{ y, opacity, scale, zIndex: index + 1 }}
+      style={{ y, opacity, scale, visibility, zIndex: index + 1 }}
       className="absolute inset-0"
     >
       <div className={SHELL}>
         <div className="col-start-1 row-start-1 flex items-center justify-center lg:col-start-2 lg:row-start-1">
-          <DeviceMockup project={project} imageY={imageY} />
+          <ProjectVisual
+            project={project}
+            imageY={imageY}
+            priority={index === 0}
+          />
         </div>
       </div>
     </motion.div>
@@ -393,7 +480,7 @@ function ProjectListCard({
   return (
     <article className="grid grid-cols-1 gap-8 overflow-hidden rounded-3xl border border-line bg-surface/60 p-5 md:grid-cols-2 md:p-6">
       <div className="order-1 flex items-center justify-center">
-        <DeviceMockup project={project} />
+        <ProjectVisual project={project} />
       </div>
       <div className="order-2 flex flex-col justify-center gap-4">
         <div className="flex items-center gap-4">
@@ -439,7 +526,12 @@ export default function ProjectsStack({ projects }: { projects: Project[] }) {
 
   useMotionValueEvent(scrollYProgress, "change", (v) => {
     if (total < 2) return;
-    const idx = Math.min(total - 1, Math.max(0, Math.floor(v * total)));
+    // Switch the active project (counter/rail) around the midpoint of the
+    // incoming image's rise, matching the details threshold.
+    const idx = Math.min(
+      total - 1,
+      Math.max(0, Math.floor(v * total + 0.55)),
+    );
     setActive((prev) => (prev === idx ? prev : idx));
   });
 
@@ -465,7 +557,7 @@ export default function ProjectsStack({ projects }: { projects: Project[] }) {
         index="01"
         eyebrow="Selected work"
         title="Projects that solve a real problem."
-        description="Scroll through the stack — each build rises to the stage with the reasoning behind it."
+        description="Scroll through the stack â€” each build rises to the stage with the reasoning behind it."
       />
 
       {total === 0 ? (
@@ -493,7 +585,7 @@ export default function ProjectsStack({ projects }: { projects: Project[] }) {
           className="relative mt-8"
           style={{ height: `${total * 100}vh` }}
         >
-          <div className="sticky top-0 h-screen overflow-hidden">
+          <div className="sticky top-0 h-dvh overflow-hidden">
             {/* scroll-driven mockups */}
             <div className="absolute inset-0">
               {projects.map((p, i) => (
@@ -508,27 +600,20 @@ export default function ProjectsStack({ projects }: { projects: Project[] }) {
               ))}
             </div>
 
-            {/* single, sequential details layer — old fully exits before new enters */}
+            {/* scroll-driven details â€” switches early; old fully hidden before new */}
             <div className="pointer-events-none absolute inset-0 z-40">
               <div className={SHELL}>
-                <div className="col-start-1 row-start-2 flex min-h-0 items-start lg:col-start-1 lg:row-start-1 lg:items-center">
-                  <AnimatePresence mode="wait" initial={false}>
-                    <motion.div
-                      key={active}
-                      initial={{ opacity: 0, y: 14 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, transition: { duration: 0.16 } }}
-                      transition={{ duration: 0.34, ease: [0.22, 1, 0.36, 1] }}
-                      className="pointer-events-auto w-full"
-                    >
-                      <ProjectDetails
-                        project={projects[active]}
-                        index={active}
-                        total={total}
-                        onOpenCase={() => setOpenIndex(active)}
-                      />
-                    </motion.div>
-                  </AnimatePresence>
+                <div className="relative col-start-1 row-start-2 min-h-0 lg:col-start-1 lg:row-start-1">
+                  {projects.map((p, i) => (
+                    <DetailsLayer
+                      key={p.id}
+                      project={p}
+                      index={i}
+                      total={total}
+                      progress={scrollYProgress}
+                      onOpenCase={() => setOpenIndex(i)}
+                    />
+                  ))}
                 </div>
               </div>
             </div>

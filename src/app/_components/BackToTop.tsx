@@ -48,7 +48,7 @@ export default function BackToTop() {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 16, scale: 0.9 }}
           transition={{ type: "spring", stiffness: 300, damping: 26 }}
-          className="group fixed bottom-6 left-6 z-[60] grid h-12 w-12 place-items-center rounded-full border border-line bg-surface/90 text-ink shadow-[var(--shadow)] backdrop-blur-md transition-colors hover:border-line-2 hover:bg-surface-2"
+          className="group fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom))] left-[calc(1.5rem+env(safe-area-inset-left))] z-[60] grid h-12 w-12 place-items-center rounded-full border border-line bg-surface/90 text-ink shadow-[var(--shadow)] backdrop-blur-md transition-colors hover:border-line-2 hover:bg-surface-2"
         >
           <svg
             aria-hidden
