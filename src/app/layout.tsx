@@ -78,7 +78,10 @@ export default function RootLayout({
       className={`${inter.variable} ${space.variable} ${jetbrains.variable}`}
       suppressHydrationWarning
     >
-      <body className="page-texture min-h-svh bg-canvas font-sans text-ink antialiased">
+      <body
+        className="page-texture min-h-svh bg-canvas font-sans text-ink antialiased"
+        suppressHydrationWarning
+      >
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"

@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import {
   motion,
@@ -243,7 +244,7 @@ function detailsOpacity(index: number, pos: number, total: number) {
   const isFirst = index === 0;
   const isLast = index === total - 1;
 
-  // Enter during 40â€“60% of this project's rise; exit during 35â€“40% of the
+  // Enter during 40–60% of this project's rise; exit during 35–40% of the
   // next project's rise (so old is fully gone before the new starts).
   const enterStart = isFirst ? Number.NEGATIVE_INFINITY : index - 0.66;
   const enterEnd = isFirst ? Number.NEGATIVE_INFINITY : index - 0.49;
@@ -304,24 +305,45 @@ function DetailsLayer({
   );
 }
 
+function useMediaQuery(query: string) {
+  return useSyncExternalStore(
+    (cb) => {
+      const mq = window.matchMedia(query);
+      mq.addEventListener("change", cb);
+      return () => mq.removeEventListener("change", cb);
+    },
+    () => window.matchMedia(query).matches,
+    () => false,
+  );
+}
+
 function VisualSlide({
   project,
   index,
   total,
   progress,
   active,
+  horizontal,
 }: {
   project: Project;
   index: number;
   total: number;
   progress: MotionValue<number>;
   active: boolean;
+  horizontal: boolean;
 }) {
   const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
   const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
   // Scroll maps to "pos" over [0, total]; each project owns one unit.
   const y = useTransform(progress, (v) => {
+    if (index === 0) return "0%";
+    const t = clamp((v * total - (index - 1)) / 0.85, 0, 1);
+    return `${lerp(100, 0, t)}%`;
+  });
+  // Tablet/phone: the image enters from the right instead of the bottom, so it
+  // never crosses the details block.
+  const x = useTransform(progress, (v) => {
     if (index === 0) return "0%";
     const t = clamp((v * total - (index - 1)) / 0.85, 0, 1);
     return `${lerp(100, 0, t)}%`;
@@ -346,7 +368,14 @@ function VisualSlide({
   return (
     <motion.div
       aria-hidden={!active}
-      style={{ y, opacity, scale, visibility, zIndex: index + 1 }}
+      style={{
+        x: horizontal ? x : "0%",
+        y: horizontal ? "0%" : y,
+        opacity,
+        scale,
+        visibility,
+        zIndex: index + 1,
+      }}
       className="absolute inset-0"
     >
       <div className={SHELL}>
@@ -369,14 +398,53 @@ function CaseStudyModal({
   project: Project;
   onClose: () => void;
 }) {
+  const dialogRef = useRef<HTMLDivElement>(null);
+
+  // Lock background scroll without a layout jump (compensate scrollbar width).
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    document.addEventListener("keydown", onKey);
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    const body = document.body;
+    const scrollbar = window.innerWidth - document.documentElement.clientWidth;
+    const prevOverflow = body.style.overflow;
+    const prevPadding = body.style.paddingRight;
+    body.style.overflow = "hidden";
+    if (scrollbar > 0) body.style.paddingRight = `${scrollbar}px`;
     return () => {
-      document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prev;
+      body.style.overflow = prevOverflow;
+      body.style.paddingRight = prevPadding;
+    };
+  }, []);
+
+  // Esc, focus trap, and restore focus to the trigger on close.
+  useEffect(() => {
+    const node = dialogRef.current;
+    const prevActive = document.activeElement as HTMLElement | null;
+    node?.focus();
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+        return;
+      }
+      if (e.key !== "Tab" || !node) return;
+      const focusables = Array.from(
+        node.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])',
+        ),
+      ).filter((el) => el.offsetParent !== null);
+      if (focusables.length === 0) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      prevActive?.focus?.();
     };
   }, [onClose]);
 
@@ -387,28 +455,34 @@ function CaseStudyModal({
     { label: "Future plan", value: project.futurePlan },
   ].filter((s) => Boolean(s.value));
 
-  return (
+  return createPortal(
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[120] flex items-center justify-center p-4 md:p-8"
-      role="dialog"
-      aria-modal="true"
-      aria-label={`${project.title} case study`}
+      className="fixed inset-0 z-[80] flex items-center justify-center p-4"
+      style={{
+        paddingTop: "max(1rem, env(safe-area-inset-top))",
+        paddingBottom: "max(1rem, env(safe-area-inset-bottom))",
+      }}
     >
       <div
         className="absolute inset-0 bg-canvas/80 backdrop-blur-md"
         onClick={onClose}
       />
       <motion.div
+        ref={dialogRef}
+        tabIndex={-1}
+        role="dialog"
+        aria-modal="true"
+        aria-label={`${project.title} case study`}
         initial={{ opacity: 0, y: 24, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 24, scale: 0.98 }}
         transition={{ type: "spring", stiffness: 260, damping: 26 }}
-        className="relative flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded-3xl border border-line-2 bg-surface shadow-[var(--shadow)]"
+        className="relative flex max-h-[calc(100dvh-2rem)] w-full max-w-3xl flex-col overflow-hidden rounded-3xl border border-line-2 bg-surface shadow-[var(--shadow)] outline-none"
       >
-        <div className="flex items-start justify-between gap-4 border-b border-line p-6">
+        <div className="flex shrink-0 items-start justify-between gap-4 border-b border-line p-6">
           <div className="flex flex-col gap-2">
             <StatusBadge status={project.status} featured={project.featured} />
             <h3 className="font-display text-2xl font-semibold text-ink">
@@ -425,7 +499,7 @@ function CaseStudyModal({
           </button>
         </div>
 
-        <div className="overflow-y-auto p-6 md:p-8">
+        <div className="min-h-0 flex-1 overflow-y-auto p-6 md:p-8">
           {project.image ? (
             <div className="relative mb-6 aspect-[16/9] overflow-hidden rounded-2xl border border-line">
               <Image
@@ -463,7 +537,8 @@ function CaseStudyModal({
           </div>
         </div>
       </motion.div>
-    </motion.div>
+    </motion.div>,
+    document.body,
   );
 }
 
@@ -514,6 +589,7 @@ function ProjectListCard({
 
 export default function ProjectsStack({ projects }: { projects: Project[] }) {
   const reduced = useReducedMotion();
+  const horizontal = useMediaQuery("(max-width: 1023px)");
   const tallRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
   const [openIndex, setOpenIndex] = useState<number | null>(null);
@@ -551,13 +627,13 @@ export default function ProjectsStack({ projects }: { projects: Project[] }) {
   return (
     <section
       id="projects"
-      className="relative mx-auto w-full max-w-[var(--container-page)] scroll-mt-24 px-[var(--spacing-page)] pt-[var(--spacing-section)]"
+      className="relative mx-auto w-full max-w-[var(--container-page)] px-[var(--spacing-page)] pt-[var(--spacing-section)]"
     >
       <SectionHeading
         index="01"
         eyebrow="Selected work"
         title="Projects that solve a real problem."
-        description="Scroll through the stack â€” each build rises to the stage with the reasoning behind it."
+        description="Scroll through the stack — each build rises to the stage with the reasoning behind it."
       />
 
       {total === 0 ? (
@@ -587,7 +663,7 @@ export default function ProjectsStack({ projects }: { projects: Project[] }) {
         >
           <div className="sticky top-0 h-dvh overflow-hidden">
             {/* scroll-driven mockups */}
-            <div className="absolute inset-0">
+            <div className="absolute inset-0 overflow-x-clip">
               {projects.map((p, i) => (
                 <VisualSlide
                   key={p.id}
@@ -596,11 +672,12 @@ export default function ProjectsStack({ projects }: { projects: Project[] }) {
                   total={total}
                   progress={scrollYProgress}
                   active={active === i}
+                  horizontal={horizontal}
                 />
               ))}
             </div>
 
-            {/* scroll-driven details â€” switches early; old fully hidden before new */}
+            {/* scroll-driven details — switches early; old fully hidden before new */}
             <div className="pointer-events-none absolute inset-0 z-40">
               <div className={SHELL}>
                 <div className="relative col-start-1 row-start-2 min-h-0 lg:col-start-1 lg:row-start-1">

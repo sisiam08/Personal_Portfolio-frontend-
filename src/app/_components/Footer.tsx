@@ -1,9 +1,8 @@
 import Link from "next/link";
 import { ArrowUpRight, LogIn } from "lucide-react";
 import { GithubIcon, LinkedinIcon, WhatsappIcon, XIcon } from "./BrandIcons";
-import type { ProfileUser } from "./types";
-import logo from "../../../public/Logo.png";
 import Image from "next/image";
+import type { ProfileUser } from "./types";
 
 const LINKS = [
   { label: "Projects", href: "#projects" },
@@ -38,7 +37,20 @@ export default function Footer({ user }: { user?: ProfileUser | null }) {
       <div className="mx-auto grid w-full max-w-[var(--container-page)] grid-cols-1 gap-10 md:grid-cols-[1.4fr_1fr_1fr]">
         <div className="flex flex-col gap-4">
           <a href="#top" className="flex items-center gap-2">
-            <Image src={logo} alt="Admin" className="h-8 w-8" />
+            <Image
+              src="/logo%20-%20black.png"
+              alt=""
+              width={32}
+              height={32}
+              className="h-8 w-8 dark:hidden"
+            />
+            <Image
+              src="/logo%20-%20white.png"
+              alt=""
+              width={32}
+              height={32}
+              className="hidden h-8 w-8 dark:block"
+            />
             <span className="font-display text-base font-semibold text-ink">
               Siam<span className="text-accent">.</span>
             </span>

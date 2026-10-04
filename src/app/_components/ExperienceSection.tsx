@@ -19,7 +19,7 @@ export default function ExperienceSection({
   return (
     <section
       id="experience"
-      className="mx-auto w-full max-w-[var(--container-page)] scroll-mt-24 px-[var(--spacing-page)] pt-[var(--spacing-section)]"
+      className="mx-auto w-full max-w-[var(--container-page)] px-[var(--spacing-page)] pt-[var(--spacing-section)]"
     >
       <SectionHeading
         index="03"

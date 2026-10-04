@@ -29,6 +29,10 @@
   --shadow:        0 24px 60px -30px rgba(20, 20, 15, 0.45);
   --ring:          #4d6b00;
 
+  /* Measured navbar bottom edge (updated by the Navbar). Used as the single
+     scroll-anchor offset so section tops land right below the navbar. */
+  --nav-offset:    5rem;
+
   /* shadcn bridge */
   --radius: 0.75rem;
 }
@@ -99,6 +103,14 @@
   --color-ring:              var(--ring);
 }
 
+/* Fix 1: slightly smaller side gutter at lg+ so the Hero headline gets more
+   width and wraps to 2 lines. Tablet/phone (below lg) are unchanged. */
+@media (min-width: 1024px) {
+  :root {
+    --spacing-page: clamp(24px, 4vw, 48px);
+  }
+}
+
 /* ─────────────────────────── Base ─────────────────────────── */
 @layer base {
   * {
@@ -107,7 +119,7 @@
 
   html {
     scroll-behavior: smooth;
-    scroll-padding-top: 6rem;
+    scroll-padding-top: var(--nav-offset, 5rem);
     -webkit-tap-highlight-color: transparent;
   }
 

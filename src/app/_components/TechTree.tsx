@@ -53,6 +53,8 @@ interface LayoutNode {
   depth: number;
   category?: string;
   skill?: Skill;
+  side?: "left" | "right";
+  radius?: number;
 }
 
 interface LayoutEdge {
@@ -150,54 +152,59 @@ function buildLayout(
     return { nodes, edges, height };
   }
 
-  // vertical (mobile) layout
-  const row = 46;
-  const catBlock = 44;
-  const gap = 26;
-  const startY = 84;
-  const rootX = 30;
-  const catX = 30;
-  const leafX = 78;
-  let cursor = startY;
+  // vertical (tablet/phone) layout — central trunk, leaves alternate left/right
+  const isTablet = width >= 600;
+  const cx = width / 2;
+  const leafRow = isTablet ? 54 : 46;
+  const catBlock = isTablet ? 46 : 42;
+  const groupGap = isTablet ? 34 : 26;
+  const allSkills = groups.flatMap((g) => g.skills);
+  const maxLabelW =
+    allSkills.reduce((m, s) => Math.max(m, s.name.length), 0) * 6.8;
+  const offset = Math.max(46, Math.min(150, width / 2 - maxLabelW - 36));
 
-  const categoryNodes: LayoutNode[] = [];
+  root.x = cx;
+  root.y = 40;
+  let cursor = root.y + 74;
+  let leafIndex = 0;
+
   groups.forEach((group) => {
     const catNode: LayoutNode = {
       id: `cat-${group.category}`,
       kind: "category",
-      x: catX,
+      x: cx,
       y: cursor,
       label: CATEGORY_LABEL[group.category] ?? group.category,
       depth: 1,
       category: group.category,
     };
-    categoryNodes.push(catNode);
+    nodes.push(catNode);
+    edges.push({ id: `e-root-${catNode.id}`, from: root, to: catNode, depth: 1, index: 0 });
     cursor += catBlock;
-    group.skills.forEach((skill, i) => {
+
+    group.skills.forEach((skill) => {
+      const side: "left" | "right" = leafIndex % 2 === 0 ? "right" : "left";
       const leaf: LayoutNode = {
         id: `leaf-${skill.name}`,
         kind: "leaf",
-        x: leafX,
+        x: side === "right" ? cx + offset : cx - offset,
         y: cursor,
         label: skill.name,
         depth: 2,
         category: group.category,
         skill,
+        side,
+        radius: isTablet ? 24 : 20,
       };
       nodes.push(leaf);
-      edges.push({ id: `e-${catNode.id}-${leaf.id}`, from: catNode, to: leaf, depth: 2, index: i });
-      cursor += row;
+      edges.push({ id: `e-${catNode.id}-${leaf.id}`, from: catNode, to: leaf, depth: 2, index: leafIndex });
+      cursor += leafRow;
+      leafIndex += 1;
     });
-    cursor += gap;
+    cursor += groupGap;
   });
 
-  root.x = rootX;
-  root.y = 30;
   nodes.unshift(root);
-  categoryNodes.forEach((catNode) =>
-    edges.push({ id: `e-root-${catNode.id}`, from: root, to: catNode, depth: 1, index: 0 }),
-  );
-
   return { nodes, edges, height: cursor + 24 };
 }
 
@@ -343,9 +350,9 @@ function NodeView({
             SS
           </text>
           <text
-            x={node.x}
-            y={node.y + 56}
-            textAnchor="middle"
+            x={orientation === "vertical" ? node.x + 42 : node.x}
+            y={orientation === "vertical" ? node.y + 4 : node.y + 56}
+            textAnchor={orientation === "vertical" ? "start" : "middle"}
             fontSize="10"
             letterSpacing="0.18em"
             fill="var(--muted)"
@@ -390,7 +397,8 @@ function NodeView({
     }
 
     const skill = node.skill!;
-    const r = 20;
+    const r = node.radius ?? 20;
+    const side = node.side ?? "right";
     const levelColor = LEVEL_COLOR[skill.level] ?? "var(--muted)";
     return (
       <>
@@ -415,16 +423,21 @@ function NodeView({
           <circle cx={node.x} cy={node.y} r={6} fill={levelColor} />
         )}
         <text
-          x={node.x + r + 10}
+          x={side === "right" ? node.x + r + 10 : node.x - r - 10}
           y={node.y + 4}
-          textAnchor="start"
+          textAnchor={side === "right" ? "start" : "end"}
           fontSize="12.5"
           fill={highlighted ? "var(--ink)" : "var(--muted)"}
           style={{ fontFamily: "var(--font-inter)", fontWeight: highlighted ? 600 : 500 }}
         >
           {node.label}
         </text>
-        <circle cx={node.x - r - 8} cy={node.y} r={2.5} fill={levelColor} />
+        <circle
+          cx={side === "right" ? node.x - r - 8 : node.x + r + 8}
+          cy={node.y}
+          r={2.5}
+          fill={levelColor}
+        />
       </>
     );
   })();
@@ -493,7 +506,7 @@ export default function TechTree({ skills }: { skills: Skill[] }) {
   }, []);
 
   const orientation: "horizontal" | "vertical" =
-    width >= 900 ? "horizontal" : "vertical";
+    width >= 1024 ? "horizontal" : "vertical";
 
   const layout = useMemo(
     () => (width > 0 ? buildLayout(skills, width, orientation) : null),
@@ -528,7 +541,7 @@ export default function TechTree({ skills }: { skills: Skill[] }) {
   return (
     <section
       id="skills"
-      className="mx-auto w-full max-w-[var(--container-page)] scroll-mt-24 px-[var(--spacing-page)] pt-[var(--spacing-section)]"
+      className="mx-auto w-full max-w-[var(--container-page)] px-[var(--spacing-page)] pt-[var(--spacing-section)]"
     >
       <SectionHeading
         index="02"

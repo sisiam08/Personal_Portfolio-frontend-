@@ -110,7 +110,7 @@ export default function LoginForm({ initialError }: { initialError?: string }) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full rounded-xl border border-line bg-canvas px-3.5 py-2.5 text-base text-ink lg:text-sm placeholder:text-faint outline-none transition-colors focus:border-accent"
-                placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
+                placeholder="••••••••"
                 required
               />
             </div>
@@ -123,7 +123,7 @@ export default function LoginForm({ initialError }: { initialError?: string }) {
               {loading ? (
                 <>
                   <LoaderCircle className="h-4 w-4 animate-spin" />
-                  Signing inâ€¦
+                  Signing in…
                 </>
               ) : (
                 "Sign in"

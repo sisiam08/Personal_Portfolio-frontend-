@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
@@ -17,9 +16,9 @@ import {
   Menu,
   User,
 } from "lucide-react";
+import Image from "next/image";
 import { ModeToggle } from "@/src/components/shared/ModeToggle";
 import { cn } from "@/lib/utils";
-import logo from "../../../public/Logo.png";
 
 const NAV = [
   { href: "/admin", label: "Dashboard", Icon: LayoutDashboard },
@@ -52,7 +51,7 @@ export default function AdminShell({
         headers: { "Content-Type": "application/json" },
       });
     } catch {
-      // ignore â€” redirect regardless
+      // ignore — redirect regardless
     }
     router.push("/admin/login");
     router.refresh();
@@ -65,9 +64,18 @@ export default function AdminShell({
     <div className="flex h-full flex-col gap-2 p-4">
       <Link href="/admin" className="mb-4 flex items-center gap-2 px-2">
         <Image
-          src={logo}
-          alt="Admin"
-          className="h-8 w-8"
+          src="/logo%20-%20black.png"
+          alt=""
+          width={32}
+          height={32}
+          className="h-8 w-8 dark:hidden"
+        />
+        <Image
+          src="/logo%20-%20white.png"
+          alt=""
+          width={32}
+          height={32}
+          className="hidden h-8 w-8 dark:block"
         />
 
         <span className="font-display text-sm font-semibold text-ink">
@@ -112,7 +120,7 @@ export default function AdminShell({
           className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-muted transition-colors hover:bg-surface-2/60 hover:text-ink disabled:opacity-60"
         >
           <LogOut className="h-4 w-4" />
-          {loggingOut ? "Signing outâ€¦" : "Logout"}
+          {loggingOut ? "Signing out…" : "Logout"}
         </button>
       </div>
     </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   AnimatePresence,
   motion,
@@ -8,9 +8,8 @@ import {
   useMotionValueEvent,
 } from "framer-motion";
 import { ArrowUpRight, Download, Menu, X } from "lucide-react";
-import { ModeToggle } from "@/src/components/shared/ModeToggle";
 import Image from "next/image";
-import logo from "../../../public/Logo.png";
+import { ModeToggle } from "@/src/components/shared/ModeToggle";
 
 const LINKS = [
   { label: "Home", href: "#top", id: "top" },
@@ -26,28 +25,88 @@ export default function Navbar({ resumeUrl }: { resumeUrl?: string | null }) {
   const [scrolled, setScrolled] = useState(false);
   const [active, setActive] = useState("top");
   const [open, setOpen] = useState(false);
+  const pillRef = useRef<HTMLDivElement>(null);
   const { scrollY } = useScroll();
 
   useMotionValueEvent(scrollY, "change", (y) => setScrolled(y > 16));
 
+  // Keep --nav-offset equal to the navbar's real bottom edge (floating pill).
+  useLayoutEffect(() => {
+    const measure = () => {
+      const el = pillRef.current;
+      if (!el) return;
+      // Use layout height + the nav's top padding so the value is independent
+      // of the entrance transform.
+      const navEl = el.parentElement;
+      const padTop = navEl
+        ? parseFloat(getComputedStyle(navEl).paddingTop) || 0
+        : 0;
+      const bottom = Math.round(padTop + el.offsetHeight);
+      document.documentElement.style.setProperty("--nav-offset", `${bottom}px`);
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    if (pillRef.current) ro.observe(pillRef.current);
+    window.addEventListener("resize", measure);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+  }, [scrolled]);
+
+  // Re-align a direct hash load once the measured offset is available.
   useEffect(() => {
-    const sections = LINKS.map((l) => document.getElementById(l.id)).filter(
-      (el): el is HTMLElement => Boolean(el),
-    );
-    if (sections.length === 0) return;
+    if (!window.location.hash) return;
+    const el = document.getElementById(window.location.hash.slice(1));
+    if (!el) return;
+    const html = document.documentElement;
+    const prev = html.style.scrollBehavior;
+    html.style.scrollBehavior = "auto";
+    const t = setTimeout(() => {
+      el.scrollIntoView({ block: "start" });
+      html.style.scrollBehavior = prev;
+    }, 0);
+    return () => clearTimeout(t);
+  }, []);
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-        if (visible) setActive(visible.target.id);
-      },
-      { rootMargin: "-45% 0px -50% 0px", threshold: [0, 0.25, 0.5, 1] },
-    );
-
-    sections.forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
+  // Scroll-spy: active = the section whose top is at/above the navbar bottom.
+  useEffect(() => {
+    const update = () => {
+      const off =
+        (parseFloat(
+          getComputedStyle(document.documentElement).getPropertyValue(
+            "--nav-offset",
+          ),
+        ) || 80) + 8;
+      const sections = LINKS.map((l) => document.getElementById(l.id)).filter(
+        (el): el is HTMLElement => Boolean(el),
+      );
+      if (sections.length === 0) return;
+      let current = sections[0].id;
+      for (const el of sections) {
+        if (el.getBoundingClientRect().top <= off) current = el.id;
+      }
+      if (
+        window.innerHeight + window.scrollY >=
+        document.documentElement.scrollHeight - 2
+      ) {
+        current = sections[sections.length - 1].id;
+      }
+      setActive((prev) => (prev === current ? prev : current));
+    };
+    let raf = 0;
+    const onScroll = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(update);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", update);
+    update();
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", update);
+      cancelAnimationFrame(raf);
+    };
   }, []);
 
   useEffect(() => {
@@ -70,9 +129,10 @@ export default function Navbar({ resumeUrl }: { resumeUrl?: string | null }) {
         initial={{ y: -24, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="fixed inset-x-0 top-0 z-[80] flex justify-center px-4 pt-[calc(0.75rem+env(safe-area-inset-top))]"
+        className="fixed inset-x-0 top-0 z-[50] flex justify-center px-4 pt-[calc(0.75rem+env(safe-area-inset-top))]"
       >
         <div
+          ref={pillRef}
           className={`flex w-full max-w-[1080px] items-center justify-between gap-4 rounded-full border px-3 py-2 transition-all duration-300 md:px-4 ${
             scrolled
               ? "border-line bg-surface/80 shadow-[var(--shadow)] backdrop-blur-xl"
@@ -84,7 +144,20 @@ export default function Navbar({ resumeUrl }: { resumeUrl?: string | null }) {
             className="group flex items-center gap-2 pl-1"
             aria-label="Shahariar Siam — home"
           >
-            <Image src={logo} alt="Admin" className="h-8 w-8" />
+            <Image
+              src="/logo%20-%20black.png"
+              alt=""
+              width={32}
+              height={32}
+              className="h-8 w-8 dark:hidden"
+            />
+            <Image
+              src="/logo%20-%20white.png"
+              alt=""
+              width={32}
+              height={32}
+              className="hidden h-8 w-8 dark:block"
+            />
             <span className="hidden font-display text-sm font-semibold tracking-tight text-ink sm:block">
               Siam
               <span className="text-accent">.</span>
@@ -154,7 +227,15 @@ export default function Navbar({ resumeUrl }: { resumeUrl?: string | null }) {
             transition={{ duration: 0.25 }}
             className="fixed inset-0 z-[70] bg-canvas/95 backdrop-blur-xl lg:hidden"
           >
-            <div className="flex h-full flex-col justify-center gap-1 px-8 pt-16">
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              aria-label="Close menu"
+              className="absolute right-5 top-[calc(1rem+env(safe-area-inset-top))] grid h-11 w-11 place-items-center rounded-full border border-line bg-surface/60 text-ink"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <div className="flex h-full flex-col justify-center gap-1 px-8 pt-24">
               {LINKS.map((link, i) => (
                 <motion.a
                   key={link.id}
