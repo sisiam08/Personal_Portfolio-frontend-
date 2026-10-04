@@ -120,7 +120,7 @@ export default function Navbar({ resumeUrl }: { resumeUrl?: string | null }) {
     <>
       <a
         href="#projects"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-full focus:bg-accent focus:px-4 focus:py-2 focus:text-accent-ink"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-200 focus:rounded-full focus:bg-accent focus:px-4 focus:py-2 focus:text-accent-ink"
       >
         Skip to content
       </a>
@@ -129,13 +129,13 @@ export default function Navbar({ resumeUrl }: { resumeUrl?: string | null }) {
         initial={{ y: -24, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="fixed inset-x-0 top-0 z-[50] flex justify-center px-4 pt-[calc(0.75rem+env(safe-area-inset-top))]"
+        className="fixed inset-x-0 top-0 z-50 flex justify-center px-4 pt-[calc(0.75rem+env(safe-area-inset-top))]"
       >
         <div
           ref={pillRef}
-          className={`flex w-full max-w-[1080px] items-center justify-between gap-4 rounded-full border px-3 py-2 transition-all duration-300 md:px-4 ${
+          className={`flex w-full max-w-270 items-center justify-between gap-4 rounded-full border px-3 py-2 transition-all duration-300 md:px-4 ${
             scrolled
-              ? "border-line bg-surface/80 shadow-[var(--shadow)] backdrop-blur-xl"
+              ? "border-line bg-surface/80 shadow-(--shadow) backdrop-blur-xl"
               : "border-transparent bg-transparent"
           }`}
         >
@@ -225,7 +225,7 @@ export default function Navbar({ resumeUrl }: { resumeUrl?: string | null }) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
-            className="fixed inset-0 z-[70] bg-canvas/95 backdrop-blur-xl lg:hidden"
+            className="fixed inset-0 z-70 bg-canvas/95 backdrop-blur-xl lg:hidden"
           >
             <button
               type="button"

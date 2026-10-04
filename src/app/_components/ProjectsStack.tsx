@@ -125,7 +125,7 @@ function ProjectVisual({
               }}
             />
           ) : (
-            <div className="flex aspect-[16/10] w-full max-w-md flex-col items-center justify-center gap-2 rounded-3xl border border-dashed border-line-2 bg-surface-2/60">
+            <div className="flex aspect-16/10 w-full max-w-md flex-col items-center justify-center gap-2 rounded-3xl border border-dashed border-line-2 bg-surface-2/60">
               <span className="font-display text-4xl font-bold text-faint">
                 {project.title.slice(0, 2).toUpperCase()}
               </span>
@@ -460,7 +460,7 @@ function CaseStudyModal({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[80] flex items-center justify-center p-4"
+      className="fixed inset-0 z-80 flex items-center justify-center p-4"
       style={{
         paddingTop: "max(1rem, env(safe-area-inset-top))",
         paddingBottom: "max(1rem, env(safe-area-inset-bottom))",
@@ -480,7 +480,7 @@ function CaseStudyModal({
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 24, scale: 0.98 }}
         transition={{ type: "spring", stiffness: 260, damping: 26 }}
-        className="relative flex max-h-[calc(100dvh-2rem)] w-full max-w-3xl flex-col overflow-hidden rounded-3xl border border-line-2 bg-surface shadow-[var(--shadow)] outline-none"
+        className="relative flex max-h-[calc(100dvh-2rem)] w-full max-w-3xl flex-col overflow-hidden rounded-3xl border border-line-2 bg-surface shadow-(--shadow) outline-none"
       >
         <div className="flex shrink-0 items-start justify-between gap-4 border-b border-line p-6">
           <div className="flex flex-col gap-2">
@@ -501,7 +501,7 @@ function CaseStudyModal({
 
         <div className="min-h-0 flex-1 overflow-y-auto p-6 md:p-8">
           {project.image ? (
-            <div className="relative mb-6 aspect-[16/9] overflow-hidden rounded-2xl border border-line">
+            <div className="relative mb-6 aspect-video overflow-hidden rounded-2xl border border-line">
               <Image
                 src={project.image}
                 alt={project.title}
@@ -627,7 +627,7 @@ export default function ProjectsStack({ projects }: { projects: Project[] }) {
   return (
     <section
       id="projects"
-      className="relative mx-auto w-full max-w-[var(--container-page)] px-[var(--spacing-page)] pt-[var(--spacing-section)]"
+      className="relative mx-auto w-full max-w-(--container-page) px-page pt-section"
     >
       <SectionHeading
         index="01"

@@ -71,7 +71,7 @@ export default async function Page() {
       <Navbar resumeUrl={user?.resumeUrl} />
       <main className="relative z-10">
         {hasError ? (
-          <div className="mx-auto mt-24 flex w-full max-w-[var(--container-page)] items-center gap-3 rounded-2xl border border-line bg-surface/60 px-5 py-4 text-sm text-muted">
+          <div className="mx-auto mt-24 flex w-full max-w-(--container-page) items-center gap-3 rounded-2xl border border-line bg-surface/60 px-5 py-4 text-sm text-muted">
             <TriangleAlert className="h-4 w-4 shrink-0 text-accent-2" />
             Some content couldn&apos;t be loaded right now. Sections below may be
             temporarily empty.

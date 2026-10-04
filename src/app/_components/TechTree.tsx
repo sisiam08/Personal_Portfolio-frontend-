@@ -216,6 +216,9 @@ function hash(str: string) {
 
 const DEPTH_FACTOR = [3, 8, 14];
 
+// Root node circle has r=30 (60px diameter); ~20% padding per side.
+const ROOT_LOGO_SIZE = 36;
+
 function factors(node: LayoutNode) {
   const base = DEPTH_FACTOR[node.depth] ?? 10;
   const jitter = 0.78 + 0.44 * hash(node.id);
@@ -337,18 +340,28 @@ function NodeView({
       return (
         <>
           <circle cx={node.x} cy={node.y} r={30} fill="var(--surface)" stroke="var(--accent)" strokeWidth="1.5" />
-          <circle cx={node.x} cy={node.y} r={30} fill="none" stroke="var(--accent)" strokeWidth="1.5" opacity="0.35" className="animate-pulse-dot" />
-          <text
-            x={node.x}
-            y={node.y + 6}
-            textAnchor="middle"
-            fontSize="17"
-            fontWeight="700"
-            fill="var(--accent)"
-            style={{ fontFamily: "var(--font-space)" }}
+          <image
+            href="/logo%20-%20black.png"
+            x={node.x - ROOT_LOGO_SIZE / 2}
+            y={node.y - ROOT_LOGO_SIZE / 2}
+            width={ROOT_LOGO_SIZE}
+            height={ROOT_LOGO_SIZE}
+            preserveAspectRatio="xMidYMid meet"
+            className="dark:hidden"
           >
-            SS
-          </text>
+            <title>Siam logo</title>
+          </image>
+          <image
+            href="/logo%20-%20white.png"
+            x={node.x - ROOT_LOGO_SIZE / 2}
+            y={node.y - ROOT_LOGO_SIZE / 2}
+            width={ROOT_LOGO_SIZE}
+            height={ROOT_LOGO_SIZE}
+            preserveAspectRatio="xMidYMid meet"
+            className="hidden dark:block"
+          >
+            <title>Siam logo</title>
+          </image>
           <text
             x={orientation === "vertical" ? node.x + 42 : node.x}
             y={orientation === "vertical" ? node.y + 4 : node.y + 56}
@@ -541,7 +554,7 @@ export default function TechTree({ skills }: { skills: Skill[] }) {
   return (
     <section
       id="skills"
-      className="mx-auto w-full max-w-[var(--container-page)] px-[var(--spacing-page)] pt-[var(--spacing-section)]"
+      className="mx-auto w-full max-w-(--container-page) px-page pt-section"
     >
       <SectionHeading
         index="02"
@@ -630,7 +643,7 @@ export default function TechTree({ skills }: { skills: Skill[] }) {
 
               {hoveredNode?.skill ? (
                 <div
-                  className="pointer-events-none absolute z-20 w-56 rounded-2xl border border-line bg-surface/95 p-4 shadow-[var(--shadow)] backdrop-blur-md"
+                  className="pointer-events-none absolute z-20 w-56 rounded-2xl border border-line bg-surface/95 p-4 shadow-(--shadow) backdrop-blur-md"
                   style={{
                     left: Math.min(hoveredNode.x + 30, Math.max(8, width - 240)),
                     top: Math.max(8, hoveredNode.y - 78),
@@ -678,7 +691,7 @@ export default function TechTree({ skills }: { skills: Skill[] }) {
               ) : null}
             </>
           ) : (
-            <div className="h-[460px] w-full" aria-hidden />
+            <div className="h-115 w-full" aria-hidden />
           )}
 
           <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3 border-t border-line pt-6">

@@ -79,7 +79,7 @@ export default function HeroVisual({
 
   return (
     <>
-      <div className="relative mx-auto aspect-4/5 w-full max-w-[440px]">
+      <div className="relative mx-auto aspect-4/5 w-full max-w-110">
         {/* Rings: scaled down on phones so the big circle never pushes past
             the screen edge (no horizontal scroll); full size from sm up.
             Scale is on the wrapper because the svg itself uses a transform
@@ -124,7 +124,7 @@ export default function HeroVisual({
           initial={{ opacity: 0, scale: 0.94 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          className="absolute inset-[10%] overflow-hidden rounded-[2.25rem] border border-line-2 bg-surface shadow-[var(--shadow)]"
+          className="absolute inset-[10%] overflow-hidden rounded-[2.25rem] border border-line-2 bg-surface shadow-(--shadow)"
         >
           {image ? (
             <Image
@@ -136,7 +136,7 @@ export default function HeroVisual({
               priority
             />
           ) : (
-            <div className="relative flex h-full w-full flex-col items-center justify-center gap-3 bg-gradient-to-br from-surface-2 to-surface">
+            <div className="relative flex h-full w-full flex-col items-center justify-center gap-3 bg-linear-to-br from-surface-2 to-surface">
               <span className="noise absolute inset-0 opacity-40" />
               <span className="relative font-display text-5xl font-bold tracking-tight text-ink sm:text-6xl">
                 {initials(name) || "SS"}
@@ -180,7 +180,7 @@ export default function HeroVisual({
           <span className="text-xs font-semibold text-ink">Built to scale</span>
         </motion.div>
 
-        <div className="absolute -bottom-4 right-4 grid h-12 w-12 place-items-center rounded-full bg-accent text-accent-ink shadow-[var(--shadow)]">
+        <div className="absolute -bottom-4 right-4 grid h-12 w-12 place-items-center rounded-full bg-accent text-accent-ink shadow-(--shadow)">
           <ArrowUpRight className="h-5 w-5" />
         </div>
       </div>

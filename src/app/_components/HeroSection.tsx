@@ -32,7 +32,7 @@ export default function HeroSection({
   return (
     <section
       id="top"
-      className="relative mx-auto grid w-full max-w-[var(--container-page)] grid-cols-1 items-center gap-14 px-[var(--spacing-page)] pb-0 pt-32 lg:grid-cols-[1.15fr_0.85fr] lg:gap-10 lg:pt-40"
+      className="relative mx-auto grid w-full max-w-(--container-page) grid-cols-1 items-center gap-14 px-page pb-0 pt-32 lg:grid-cols-[1.15fr_0.85fr] lg:gap-10 lg:pt-40"
     >
       <div className="flex flex-col items-start gap-7">
         <span className="inline-flex items-center gap-2 rounded-full border border-line bg-surface/60 px-3 py-1.5 backdrop-blur-sm">
@@ -42,7 +42,7 @@ export default function HeroSection({
           </span>
         </span>
 
-        <h1 className="font-display text-[clamp(2.75rem,8vw,5.5rem)] font-semibold leading-[0.98] tracking-tight text-ink break-words lg:text-[clamp(2.75rem,7.1vw,5rem)]">
+        <h1 className="font-display text-[clamp(2.75rem,8vw,5.5rem)] font-semibold leading-[0.98] tracking-tight text-ink wrap-break-word lg:text-[clamp(2.75rem,7.1vw,5rem)]">
           {name}
         </h1>
 

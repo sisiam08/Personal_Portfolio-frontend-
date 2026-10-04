@@ -33,8 +33,8 @@ export default function Footer({ user }: { user?: ProfileUser | null }) {
   ].filter((s) => Boolean(s.href));
 
   return (
-    <footer className="relative z-10 border-t border-line px-[var(--spacing-page)] pb-10 pt-[var(--spacing-section)]">
-      <div className="mx-auto grid w-full max-w-[var(--container-page)] grid-cols-1 gap-10 md:grid-cols-[1.4fr_1fr_1fr]">
+    <footer className="relative z-10 border-t border-line px-page pb-10 pt-section">
+      <div className="mx-auto grid w-full max-w-(--container-page) grid-cols-1 gap-10 md:grid-cols-[1.4fr_1fr_1fr]">
         <div className="flex flex-col gap-4">
           <a href="#top" className="flex items-center gap-2">
             <Image
@@ -113,7 +113,7 @@ export default function Footer({ user }: { user?: ProfileUser | null }) {
         </div>
       </div>
 
-      <div className="mx-auto mt-12 flex w-full max-w-[var(--container-page)] flex-col items-center justify-between gap-4 border-t border-line pt-6 md:flex-row">
+      <div className="mx-auto mt-12 flex w-full max-w-(--container-page) flex-col items-center justify-between gap-4 border-t border-line pt-6 md:flex-row">
         <p className="text-xs text-faint">
           © {year} {user?.name || "Md. Shahariar Islam Siam"}. All rights
           reserved.
